@@ -4,10 +4,13 @@ import quickmart.management.ItemManager;
 import java.util.List;
 import java.util.Scanner;
 
-public abstract class Seller extends User {
+public class Seller extends User {
+
     public Seller(int userId, String name, String email, String password) {
         super(userId, name, email, password);
     }
+
+    private static final ItemManager itemManager = new ItemManager(); // Use ItemManager for item operations
 
     public static void sellerMenu(Seller seller, Scanner scanner) {
         while (true) {
@@ -37,7 +40,7 @@ public abstract class Seller extends User {
     }
 
     private static void viewItems() {
-        List<Item> items = ItemManager.getAllItems(); // ✅ Fixed return type issue
+        List<Item> items = itemManager.getAllItems();
         if (items.isEmpty()) {
             System.out.println("❌ No items available.");
             return;
@@ -59,7 +62,12 @@ public abstract class Seller extends User {
         double price = scanner.nextDouble();
 
         // ✅ Fixed incorrect method call: now passing correct parameters
-        ItemManager.addItem(title, description, price);
+        itemManager.addItem(title, description, price);
         System.out.println("✅ Item added successfully!");
+    }
+
+    @Override
+    public void displayInfo() {
+        System.out.println("👤 Seller: " + getName() + " | Email: " + getEmail());
     }
 }

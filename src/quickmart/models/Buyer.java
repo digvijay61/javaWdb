@@ -6,7 +6,10 @@ import quickmart.payment.PaymentMethods;
 import java.util.List;
 import java.util.Scanner;
 
-public abstract class Buyer extends User {
+public class Buyer extends User {
+
+    private static final ItemManager itemManager = new ItemManager(); // Use ItemManager for item operations
+
     private Cart cart;
 
     public Buyer(int userId, String name, String email, String password) {
@@ -54,7 +57,7 @@ public abstract class Buyer extends User {
     }
 
     private static void viewAvailableItems() {
-        List<Item> items = ItemManager.getAllItems();
+        List<Item> items = itemManager.getAllItems();
         if (items.isEmpty()) {
             System.out.println("❌ No items available.");
             return;
@@ -70,7 +73,7 @@ public abstract class Buyer extends User {
         int itemId = scanner.nextInt();
         scanner.nextLine(); // Consume newline
 
-        Item item = ItemManager.getItemById(itemId);
+        Item item = itemManager.getItemById(itemId);
         if (item != null) {
             buyer.getCart().addItem(item);
             System.out.println("✅ Item added to cart: " + item.getTitle());
@@ -91,7 +94,7 @@ public abstract class Buyer extends User {
         for (Item item : items) {
             item.displayItem();
         }
-        System.out.println("Total: $" + cart.getTotalPrice());
+        System.out.println("Total: " + cart.getTotalPrice());
     }
 
     private static void checkout(Buyer buyer, Scanner scanner) {
@@ -102,7 +105,7 @@ public abstract class Buyer extends User {
         }
 
         System.out.println("\n💰 Checkout:");
-        System.out.println("Total amount: $" + cart.getTotalPrice());
+        System.out.println("Total amount: " + cart.getTotalPrice());
         System.out.println("Choose payment method:");
         System.out.println("1. Cash");
         System.out.println("2. Online Payment");

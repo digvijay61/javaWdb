@@ -30,4 +30,8 @@ public abstract class User {
     }
 
     public abstract void displayInfo();
+
+    public String getPassword() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

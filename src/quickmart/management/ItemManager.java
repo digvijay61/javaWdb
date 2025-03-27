@@ -1,23 +1,92 @@
 package quickmart.management;
 
 import quickmart.models.Item;
-import quickmart.storage.ItemStorage;
+import quickmart.utils.DBUtil;
+
+import java.sql.*;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ItemManager {
 
-    // ✅ Fix: Get all items from ItemStorage
-    public static List<Item> getAllItems() {
-        return ItemStorage.getAllItems();
+
+
+    public List<Item> getAllItems() {
+        String sql = "SELECT * FROM Items";
+        List<Item> items = new ArrayList<>();
+        try (Connection conn = DBUtil.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Item item = new Item(
+                        rs.getInt("itemId"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getBoolean("isForRent"),
+                        rs.getInt("sellerId")
+                );
+                items.add(item);
+            }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
+        return items;
     }
 
-    // ✅ Ensure `getItemById` gets item from ItemStorage
-    public static Item getItemById(int id) {
-        return ItemStorage.getItemById(id);
+    public Item getItemById(int id) {
+        String sql = "SELECT * FROM Items WHERE itemId = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Item(
+                            rs.getInt("itemId"),
+                            rs.getString("title"),
+                            rs.getString("description"),
+                            rs.getDouble("price"),
+                            rs.getBoolean("isForRent"),
+                            rs.getInt("sellerId")
+                    );
+                }
+                return null;
+            }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    // ✅ Fix: Ensure `addItem()` uses the correct parameters and adds to ItemStorage
-    public static void addItem(String title, String description, double price) {
-        ItemStorage.addItem(title, description, price);
+    public void addItem(Item item) {
+        String sql = "INSERT INTO Items (title, description, price, isForRent, sellerId) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, item.getTitle());
+            pstmt.setString(2, item.getDescription());
+            pstmt.setDouble(3, item.getPrice());
+            pstmt.setBoolean(4, item.isForRent());
+            pstmt.setInt(5, item.getSellerId());
+            pstmt.executeUpdate();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void addItem(String title, String description, double price) {
+        String sql = "INSERT INTO Items (title, description, price, isForRent, sellerId) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, title);
+            pstmt.setString(2, description);
+            pstmt.setDouble(3, price);
+            pstmt.setBoolean(4, false);
+            pstmt.setInt(5, -1);
+            pstmt.executeUpdate();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
     }
 }

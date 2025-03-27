@@ -5,17 +5,29 @@ import quickmart.models.Buyer;
 import quickmart.models.User;
 import quickmart.management.ItemManager;
 import quickmart.management.UserManager;
-import quickmart.storage.UserStorage;
+import quickmart.utils.DBUtil;
+
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Scanner;
-import quickmart.storage.ItemStorage;
-import java.util.List;  // Import List interface
-import quickmart.models.Item; // Import Item class
 
 public class Main {
+
+    private static final UserManager userManager = new UserManager();
+    private static final ItemManager itemManager = new ItemManager();
+
     public static void main(String[] args) {
+
+        try {
+            // Load default items when the program starts
+            DBUtil.loadDefaultItems();
+
+        } catch (SQLException | IOException e) {
+            System.err.println("Error initializing database: " + e.getMessage());
+            return; // Exit if the database initialization fails
+        }
+
         Scanner scanner = new Scanner(System.in);
-        ItemStorage.loadDefaultItems(); // Load default items when program starts
-        UserManager userManager = new UserManager();
 
         while (true) {
             System.out.println("\nWelcome to QuickMart!");
@@ -36,6 +48,11 @@ public class Main {
                     break;
                 case 3:
                     System.out.println("Exiting QuickMart...");
+                    try {
+                        DBUtil.closeConnection(); // Close the database connection on exit
+                    } catch (Exception e) {
+                        System.err.println("Error closing database connection: " + e.getMessage());
+                    }
                     scanner.close();
                     return;
                 default:
@@ -72,15 +89,20 @@ public class Main {
         scanner.nextLine(); // Consume newline
 
         User user;
+        int nextUserId = userManager.getNextUserId(); //Fetch the userID using the method from userManager
+        if (nextUserId == -1){
+            System.out.println("Error retrieving User Id");
+            return;
+        }
         if (role == 1) {
-            user = new Seller(UserStorage.getNextUserId(), name, email, password) {
+            user = new Seller(nextUserId, name, email, password) {
                 @Override
                 public void displayInfo() {
                     System.out.println("👤 Seller: " + getName() + " | Email: " + getEmail());
                 }
             };
         } else {
-            user = new Buyer(UserStorage.getNextUserId(), name, email, password) {
+            user = new Buyer(nextUserId, name, email, password) {
                 @Override
                 public void displayInfo() {
                     System.out.println("🛒 Buyer: " + getName() + " | Email: " + getEmail());
@@ -100,12 +122,13 @@ public class Main {
         System.out.print("Enter Password: ");
         String password = scanner.nextLine();
 
-        if (!UserStorage.validateCredentials(email, password)) {
+        User user = userManager.getUserByEmail(email);
+
+        if (user == null || !user.validatePassword(password)) {
             System.out.println("❌ Invalid email or password! Please try again.");
             return;
         }
 
-        User user = UserStorage.getUserByEmail(email);
         if (user instanceof Seller) {
             Seller.sellerMenu((Seller) user, scanner);
         } else if (user instanceof Buyer) {
