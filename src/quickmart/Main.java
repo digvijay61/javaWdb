@@ -8,24 +8,25 @@ import quickmart.management.UserManager;
 import quickmart.storage.UserStorage;
 import java.util.Scanner;
 import quickmart.storage.ItemStorage;
+import java.util.List;  // Import List interface
+import quickmart.models.Item; // Import Item class
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ItemStorage.loadDefaultItems(); // Load default items when program starts
         UserManager userManager = new UserManager();
-        
+
         while (true) {
             System.out.println("\nWelcome to QuickMart!");
             System.out.println("1. Register");
             System.out.println("2. Login");
-            System.out.println("3. View All Items");
-            System.out.println("4. Exit");
+            System.out.println("3. Exit");
             System.out.print("Enter choice: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
-            
+
             switch (choice) {
                 case 1:
                     registerUser(scanner, userManager);
@@ -34,9 +35,6 @@ public class Main {
                     loginUser(scanner, userManager);
                     break;
                 case 3:
-                    ItemManager.getAllItems();
-                    break;
-                case 4:
                     System.out.println("Exiting QuickMart...");
                     scanner.close();
                     return;
