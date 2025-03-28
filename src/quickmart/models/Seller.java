@@ -1,13 +1,14 @@
 package quickmart.models;
 
 import quickmart.management.ItemManager;
+
 import java.util.List;
 import java.util.Scanner;
 
 public class Seller extends User {
 
-    public Seller(int userId, String name, String email, String password) {
-        super(userId, name, email, password);
+    public Seller(String name, String email, String password) {
+        super(name, email, password);
     }
 
     private static final ItemManager itemManager = new ItemManager(); // Use ItemManager for item operations

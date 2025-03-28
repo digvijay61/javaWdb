@@ -3,6 +3,7 @@ package quickmart.models;
 import quickmart.management.ItemManager;
 import quickmart.management.TransactionManager;
 import quickmart.payment.PaymentMethods;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,8 +13,8 @@ public class Buyer extends User {
 
     private Cart cart;
 
-    public Buyer(int userId, String name, String email, String password) {
-        super(userId, name, email, password);
+    public Buyer(String name, String email, String password) {
+        super(name, email, password);
         this.cart = new Cart(this); // Initialize cart for the buyer
     }
 

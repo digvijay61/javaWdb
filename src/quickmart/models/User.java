@@ -1,13 +1,13 @@
+// In src/quickmart/models/User.java
 package quickmart.models;
 
 public abstract class User {
     private int userId;
     private String name;
     private String email;
-    private String password; 
+    private String password;
 
-    public User(int userId, String name, String email, String password) {
-        this.userId = userId;
+    public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -15,6 +15,10 @@ public abstract class User {
 
     public int getUserId() {
         return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -32,6 +36,6 @@ public abstract class User {
     public abstract void displayInfo();
 
     public String getPassword() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return password; // Return the password
     }
 }

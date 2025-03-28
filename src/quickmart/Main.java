@@ -89,20 +89,15 @@ public class Main {
         scanner.nextLine(); // Consume newline
 
         User user;
-        int nextUserId = userManager.getNextUserId(); //Fetch the userID using the method from userManager
-        if (nextUserId == -1){
-            System.out.println("Error retrieving User Id");
-            return;
-        }
         if (role == 1) {
-            user = new Seller(nextUserId, name, email, password) {
+            user = new Seller(name, email, password) {
                 @Override
                 public void displayInfo() {
                     System.out.println("👤 Seller: " + getName() + " | Email: " + getEmail());
                 }
             };
         } else {
-            user = new Buyer(nextUserId, name, email, password) {
+            user = new Buyer(name, email, password) {
                 @Override
                 public void displayInfo() {
                     System.out.println("🛒 Buyer: " + getName() + " | Email: " + getEmail());

@@ -90,7 +90,7 @@ public class DBUtil {
             statement.executeUpdate(SQL_CREATE_USERS_TABLE);
             // Create a "System" user with userId -1 (for default items)
             String sqlCreateSystemUser = "INSERT IGNORE INTO Users (userId, name, email, password, role) VALUES (-1, 'System', 'system@quickmart.com', 'password', 'seller')";
-            statement.executeUpdate(sqlCreateSystemUser);
+            //statement.executeUpdate(sqlCreateSystemUser); No longer need
 
             statement.executeUpdate(SQL_CREATE_ITEMS_TABLE);
             statement.executeUpdate(SQL_CREATE_TRANSACTIONS_TABLE);
