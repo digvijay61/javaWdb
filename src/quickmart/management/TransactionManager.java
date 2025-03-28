@@ -10,6 +10,7 @@ public class TransactionManager {
 
     public static void addTransaction(Transaction transaction) {
         transactions.add(transaction);
+        System.out.println("DEBUG: Transaction added. Total transactions: " + transactions.size()); // Add this
     }
 
     public static int getNextTransactionId() {

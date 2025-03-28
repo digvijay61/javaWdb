@@ -1,8 +1,11 @@
 package quickmart.models;
 
 import quickmart.payment.PaymentMethods;
-import quickmart.payment.PaymentMethods.PaymentStrategy;
+import quickmart.utils.DBUtil;
 
+import java.sql.SQLException;
+import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +26,25 @@ public class Transaction {
         this.paymentMethod = paymentMethod;
         this.totalAmount = calculateTotalAmount();
         this.isSuccessful = paymentMethod.processPayment(this.totalAmount);
+
+        //Database Insertion
+        String insertTransactionSql = "INSERT INTO Transactions (transactionId, buyerId, transactionDate, totalAmount, paymentMethodType, paymentDetails, isSuccessful) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String insertTransactionItemsSql = "INSERT INTO TransactionItems (transactionId, itemId, quantity) VALUES (?, ?, ?)";
+
+        try {
+            //Insert into Transactions table
+            DBUtil.executeUpdate(insertTransactionSql, this.transactionId, this.buyer.getUserId(), new Timestamp(this.transactionDate.getTime()), this.totalAmount, paymentMethod.getClass().getSimpleName(), "Payment Details", this.isSuccessful);
+
+            //Insert into TransactionItems table
+            for (Item item : items) {
+                DBUtil.executeUpdate(insertTransactionItemsSql, this.transactionId, item.getItemId(), 1);
+            }
+
+            System.out.println("DEBUG: Transaction details saved to database."); // Add this
+        } catch (SQLException | IOException e) {
+            System.err.println("Error saving transaction to database: " + e.getMessage());
+            e.printStackTrace(); //Print the stack trace
+        }
     }
 
     private double calculateTotalAmount() {
@@ -66,7 +88,7 @@ public class Transaction {
         System.out.println("Transaction ID: " + transactionId);
         System.out.println("Buyer: " + buyer.getName());
         System.out.println("Transaction Date: " + transactionDate);
-        System.out.println("Total Amount: $" + totalAmount);
+        System.out.println("Total Amount: " + totalAmount);
         System.out.println("Payment Method: " + paymentMethod.getClass().getSimpleName());
         System.out.println("Transaction Status: " + (isSuccessful ? "Successful" : "Failed"));
         if (isSuccessful) {

@@ -28,7 +28,6 @@ public class DBUtil {
         return databaseName;
     }
 
-
     public static Connection getConnection() throws SQLException, IOException {
         if (connection == null || connection.isClosed()) {
             String user = databaseUsername; // Using hardcoded values
@@ -90,7 +89,7 @@ public class DBUtil {
             statement.executeUpdate(SQL_CREATE_USERS_TABLE);
             // Create a "System" user with userId -1 (for default items)
             String sqlCreateSystemUser = "INSERT IGNORE INTO Users (userId, name, email, password, role) VALUES (-1, 'System', 'system@quickmart.com', 'password', 'seller')";
-            //statement.executeUpdate(sqlCreateSystemUser); No longer need
+            statement.executeUpdate(sqlCreateSystemUser);
 
             statement.executeUpdate(SQL_CREATE_ITEMS_TABLE);
             statement.executeUpdate(SQL_CREATE_TRANSACTIONS_TABLE);
@@ -139,6 +138,16 @@ public class DBUtil {
         return pstmt.getGeneratedKeys(); // Returns the generated keys
     }
 
+    // New Helper function to delete a record
+    public static int executeDelete(String sql, Object... params) throws SQLException, IOException {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            for (int i = 0; i < params.length; i++) {
+                pstmt.setObject(i + 1, params[i]);
+            }
+            return pstmt.executeUpdate(); // Returns the number of rows affected
+        }
+    }
 
     // Interface for handling the ResultSet and mapping to an object
     public interface ResultSetHandler<T> {
@@ -214,7 +223,7 @@ public class DBUtil {
                 pstmt.setString(2, "High-quality synthetic leather football. Ideal for matches and practice.");
                 pstmt.setDouble(3, 20.0);
                 pstmt.setBoolean(4, false);
-                pstmt.setInt(5, -1);
+                pstmt.setInt(5, -1);  //This id exists now
                 pstmt.executeUpdate();
 
                 // Badminton Racket
@@ -222,7 +231,7 @@ public class DBUtil {
                 pstmt.setString(2, "Lightweight aluminum racket with comfortable grip. Perfect for beginners.");
                 pstmt.setDouble(3, 15.0);
                 pstmt.setBoolean(4, false);
-                pstmt.setInt(5, -1);
+                pstmt.setInt(5, -1);  //This id exists now
                 pstmt.executeUpdate();
 
                 // Cricket Bat
@@ -230,7 +239,7 @@ public class DBUtil {
                 pstmt.setString(2, "Grade A willow cricket bat for power and precision shots.");
                 pstmt.setDouble(3, 50.0);
                 pstmt.setBoolean(4, false);
-                pstmt.setInt(5, -1);
+                pstmt.setInt(5, -1);  //This id exists now
                 pstmt.executeUpdate();
 
                 // Yoga Mat
@@ -238,7 +247,7 @@ public class DBUtil {
                 pstmt.setString(2, "Non-slip, durable yoga mat. Great for workouts and meditation.");
                 pstmt.setDouble(3, 10.0);
                 pstmt.setBoolean(4, false);
-                pstmt.setInt(5, -1);
+                pstmt.setInt(5, -1);  //This id exists now
                 pstmt.executeUpdate();
 
                 // Tennis Ball Pack
@@ -246,7 +255,7 @@ public class DBUtil {
                 pstmt.setString(2, "Durable, high-bounce tennis balls for all court types.");
                 pstmt.setDouble(3, 8.0);
                 pstmt.setBoolean(4, false);
-                pstmt.setInt(5, -1);
+                pstmt.setInt(5, -1);  //This id exists now
                 pstmt.executeUpdate();
 
                 // Notebook
@@ -254,7 +263,7 @@ public class DBUtil {
                 pstmt.setString(2, "Spiral-bound notebook with smooth, high-quality paper.");
                 pstmt.setDouble(3, 5.0);
                 pstmt.setBoolean(4, false);
-                pstmt.setInt(5, -1);
+                pstmt.setInt(5, -1);  //This id exists now
                 pstmt.executeUpdate();
 
                 // Ballpoint Pen Set
@@ -262,7 +271,7 @@ public class DBUtil {
                 pstmt.setString(2, "Assorted colors, smooth ink flow, and comfortable grip.");
                 pstmt.setDouble(3, 3.0);
                 pstmt.setBoolean(4, false);
-                pstmt.setInt(5, -1);
+                pstmt.setInt(5, -1);  //This id exists now
                 pstmt.executeUpdate();
 
                 // Sketchbook
@@ -270,7 +279,7 @@ public class DBUtil {
                 pstmt.setString(2, "Ideal for drawing and sketching. 100 GSM paper.");
                 pstmt.setDouble(3, 7.0);
                 pstmt.setBoolean(4, false);
-                pstmt.setInt(5, -1);
+                pstmt.setInt(5, -1);  //This id exists now
                 pstmt.executeUpdate();
 
                 // Highlighter Pack
@@ -278,7 +287,7 @@ public class DBUtil {
                 pstmt.setString(2, "Vibrant and long-lasting colors, perfect for study notes.");
                 pstmt.setDouble(3, 4.0);
                 pstmt.setBoolean(4, false);
-                pstmt.setInt(5, -1);
+                pstmt.setInt(5, -1);  //This id exists now
                 pstmt.executeUpdate();
 
                 // Geometry Box
@@ -286,7 +295,7 @@ public class DBUtil {
                 pstmt.setString(2, "Complete set with compass, protractor, and ruler.");
                 pstmt.setDouble(3, 6.0);
                 pstmt.setBoolean(4, false);
-                pstmt.setInt(5, -1);
+                pstmt.setInt(5, -1);  //This id exists now
                 pstmt.executeUpdate();
 
                 System.out.println("Default items loaded successfully.");

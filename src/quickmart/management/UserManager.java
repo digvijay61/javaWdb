@@ -1,3 +1,5 @@
+// In src/quickmart/management/UserManager.java
+
 package quickmart.management;
 
 import quickmart.models.User;
@@ -70,23 +72,37 @@ public class UserManager {
     }
 }
 
-
-    // No longer needed because the database handles auto-increment
-    /*public int getNextUserId() {
-        String sql = "SELECT MAX(userId) FROM Users";
-        try (Connection conn = DBUtil.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            if (rs.next()) {
-                return rs.getInt(1) + 1;
+    // New method to delete a user by ID
+    public void deleteUser(int userId) {
+        String sql = "DELETE FROM Users WHERE userId = ?";
+        try {
+            int rowsAffected = DBUtil.executeUpdate(sql, userId);
+            if (rowsAffected > 0) {
+                System.out.println("User deleted successfully!");
             } else {
-                return 1; // If the table is empty, start with ID 1
+                System.out.println("User not found.");
             }
         } catch (SQLException | IOException e) {
             e.printStackTrace();
-            return -1; //Indicate Error
+            System.err.println("Error deleting user: " + e.getMessage());
         }
-    }*/
+    }
 
+
+    // New method to update a user
+    public void updateUser(User user) {
+        String sql = "UPDATE Users SET name = ?, email = ?, password = ?, role = ? WHERE userId = ?";
+        try {
+            String role = (user instanceof Buyer) ? "buyer" : "seller";
+            int rowsAffected = DBUtil.executeUpdate(sql, user.getName(), user.getEmail(), user.getPassword(), role, user.getUserId());
+            if (rowsAffected > 0) {
+                System.out.println("User updated successfully!");
+            } else {
+                System.out.println("User not found.");
+            }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            System.err.println("Error updating user: " + e.getMessage());
+        }
+    }
 }

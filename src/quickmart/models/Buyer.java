@@ -73,7 +73,6 @@ public class Buyer extends User {
         System.out.print("Enter Item ID to add to cart: ");
         int itemId = scanner.nextInt();
         scanner.nextLine(); // Consume newline
-
         Item item = itemManager.getItemById(itemId);
         if (item != null) {
             buyer.getCart().addItem(item);
@@ -105,6 +104,7 @@ public class Buyer extends User {
             return;
         }
 
+        System.out.println("DEBUG: Checkout started. Cart size: " + cart.getItems().size());  // Added Debug
         System.out.println("\n💰 Checkout:");
         System.out.println("Total amount: " + cart.getTotalPrice());
         System.out.println("Choose payment method:");
@@ -131,12 +131,13 @@ public class Buyer extends User {
         }
         //Create a new transaction
         Transaction transaction = new Transaction(TransactionManager.getNextTransactionId(), buyer, cart.getItems(), paymentStrategy);
-
+        System.out.println("DEBUG: Transaction created with ID: " + transaction.getTransactionId()); // Added Debug
         //Add it to Transaction manager
         TransactionManager.addTransaction(transaction);
 
         //Display transaction Details
         transaction.displayTransactionDetails();
+        System.out.println("DEBUG: Transaction details displayed."); // Added Debug
 
         if (transaction.isSuccessful()) {
             cart.clearCart(); // Clear the cart after successful checkout

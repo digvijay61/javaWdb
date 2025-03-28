@@ -18,7 +18,9 @@ public class Seller extends User {
             System.out.println("\nSeller Menu:");
             System.out.println("1. View My Items");
             System.out.println("2. Add an Item");
-            System.out.println("3. Logout");
+            System.out.println("3. Delete an Item");
+            System.out.println("4. Update an Item");
+            System.out.println("5. Logout");
             System.out.print("Enter choice: ");
 
             int choice = scanner.nextInt();
@@ -32,6 +34,12 @@ public class Seller extends User {
                     addNewItem(scanner);
                     break;
                 case 3:
+                    deleteItem(scanner); // Add this line
+                    break;
+                case 4:
+                    updateItem(scanner); // Add this line
+                    break;
+                case 5:
                     System.out.println("Logging out...");
                     return;
                 default:
@@ -65,6 +73,61 @@ public class Seller extends User {
         // ✅ Fixed incorrect method call: now passing correct parameters
         itemManager.addItem(title, description, price);
         System.out.println("✅ Item added successfully!");
+    }
+
+    private static void deleteItem(Scanner scanner) {
+        System.out.print("Enter Item ID to delete: ");
+        int itemIdToDelete = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        itemManager.deleteItem(itemIdToDelete);
+    }
+
+    private static void updateItem(Scanner scanner) {
+        System.out.print("Enter Item ID to update: ");
+        int itemIdToUpdate = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        Item item = itemManager.getItemById(itemIdToUpdate);
+        if (item == null) {
+            System.out.println("❌ Item not found.");
+            return;
+        }
+
+        System.out.print("Enter new item title (leave blank to keep current: " + item.getTitle() + "): ");
+        String newTitle = scanner.nextLine();
+        if (!newTitle.isEmpty()) {
+            item = new Item(item.getItemId(), newTitle, item.getDescription(), item.getPrice(), item.isForRent(), item.getSellerId());
+        }
+
+        System.out.print("Enter new item description (leave blank to keep current: " + item.getDescription() + "): ");
+        String newDescription = scanner.nextLine();
+        if (!newDescription.isEmpty()) {
+            item = new Item(item.getItemId(), item.getTitle(), newDescription, item.getPrice(), item.isForRent(), item.getSellerId());
+        }
+
+        System.out.print("Enter new item price (leave blank to keep current: " + item.getPrice() + "): ");
+        String newPriceStr = scanner.nextLine();
+        if (!newPriceStr.isEmpty()) {
+            try {
+                double newPrice = Double.parseDouble(newPriceStr);
+                item = new Item(item.getItemId(), item.getTitle(), item.getDescription(), newPrice, item.isForRent(), item.getSellerId());
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Invalid price format. Price not updated.");
+            }
+        }
+
+        System.out.print("Is the item for rent? (true/false, leave blank to keep current: " + item.isForRent() + "): ");
+        String newIsForRentStr = scanner.nextLine();
+        if (!newIsForRentStr.isEmpty()) {
+            try {
+                boolean newIsForRent = Boolean.parseBoolean(newIsForRentStr);
+                item = new Item(item.getItemId(), item.getTitle(), item.getDescription(), item.getPrice(), newIsForRent, item.getSellerId());
+            } catch (IllegalArgumentException e) {
+                System.out.println("❌ Invalid boolean format. Rent status not updated.");
+            }
+        }
+        itemManager.updateItem(item);
     }
 
     @Override

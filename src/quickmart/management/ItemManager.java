@@ -1,3 +1,5 @@
+// In src/quickmart/management/ItemManager.java
+
 package quickmart.management;
 
 import quickmart.models.Item;
@@ -9,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemManager {
-
 
 
     public List<Item> getAllItems() {
@@ -87,6 +88,39 @@ public class ItemManager {
             pstmt.executeUpdate();
         } catch (SQLException | IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    // New method to delete an item by ID
+    public void deleteItem(int itemId) {
+        String sql = "DELETE FROM Items WHERE itemId = ?";
+        try {
+            int rowsAffected = DBUtil.executeUpdate(sql, itemId);
+            if (rowsAffected > 0) {
+                System.out.println("Item deleted successfully!");
+            } else {
+                System.out.println("Item not found.");
+            }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            System.err.println("Error deleting item: " + e.getMessage());
+        }
+    }
+
+
+    // New method to update an item
+    public void updateItem(Item item) {
+        String sql = "UPDATE Items SET title = ?, description = ?, price = ?, isForRent = ?, sellerId = ? WHERE itemId = ?";
+        try {
+            int rowsAffected = DBUtil.executeUpdate(sql, item.getTitle(), item.getDescription(), item.getPrice(), item.isForRent(), item.getSellerId(), item.getItemId());
+            if (rowsAffected > 0) {
+                System.out.println("Item updated successfully!");
+            } else {
+                System.out.println("Item not found.");
+            }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            System.err.println("Error updating item: " + e.getMessage());
         }
     }
 }

@@ -10,6 +10,7 @@ import quickmart.utils.DBUtil;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Scanner;
+import quickmart.models.Item;
 
 public class Main {
 
@@ -33,7 +34,8 @@ public class Main {
             System.out.println("\nWelcome to QuickMart!");
             System.out.println("1. Register");
             System.out.println("2. Login");
-            System.out.println("3. Exit");
+            System.out.println("3. Admin");
+            System.out.println("4. Exit");
             System.out.print("Enter choice: ");
 
             int choice = scanner.nextInt();
@@ -47,6 +49,9 @@ public class Main {
                     loginUser(scanner, userManager);
                     break;
                 case 3:
+                    adminMenu(scanner, itemManager, userManager);
+                    break;
+                case 4:
                     System.out.println("Exiting QuickMart...");
                     try {
                         DBUtil.closeConnection(); // Close the database connection on exit
@@ -131,5 +136,99 @@ public class Main {
         } else {
             System.out.println("❌ Unknown user type!");
         }
+    }
+
+    // Admin Menu
+    private static void adminMenu(Scanner scanner, ItemManager itemManager, UserManager userManager) {
+        while (true) {
+            System.out.println("\nAdmin Menu:");
+            System.out.println("1. Delete Item");
+            System.out.println("2. Update Item");
+            System.out.println("3. Delete User");
+            System.out.println("4. Exit Admin Menu");
+            System.out.print("Enter choice: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    deleteItemByAdmin(scanner, itemManager);
+                    break;
+                case 2:
+                    updateItemByAdmin(scanner, itemManager);
+                    break;
+                case 3:
+                    deleteUserByAdmin(scanner, userManager);
+                    break;
+                case 4:
+                    System.out.println("Exiting Admin Menu...");
+                    return;
+                default:
+                    System.out.println("Invalid choice! Try again.");
+            }
+        }
+    }
+
+    private static void deleteItemByAdmin(Scanner scanner, ItemManager itemManager) {
+        System.out.print("Enter Item ID to delete: ");
+        int itemIdToDelete = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+        itemManager.deleteItem(itemIdToDelete);
+    }
+
+    private static void updateItemByAdmin(Scanner scanner, ItemManager itemManager) {
+        System.out.print("Enter Item ID to update: ");
+        int itemIdToUpdate = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        Item item = itemManager.getItemById(itemIdToUpdate);
+        if (item == null) {
+            System.out.println("❌ Item not found.");
+            return;
+        }
+
+        System.out.print("Enter new item title (leave blank to keep current: " + item.getTitle() + "): ");
+        String newTitle = scanner.nextLine();
+        if (!newTitle.isEmpty()) {
+            item = new Item(item.getItemId(), newTitle, item.getDescription(), item.getPrice(), item.isForRent(), item.getSellerId());
+        }
+
+        System.out.print("Enter new item description (leave blank to keep current: " + item.getDescription() + "): ");
+        String newDescription = scanner.nextLine();
+        if (!newDescription.isEmpty()) {
+            item = new Item(item.getItemId(), item.getTitle(), newDescription, item.getPrice(), item.isForRent(), item.getSellerId());
+        }
+
+        System.out.print("Enter new item price (leave blank to keep current: " + item.getPrice() + "): ");
+        String newPriceStr = scanner.nextLine();
+        if (!newPriceStr.isEmpty()) {
+            try {
+                double newPrice = Double.parseDouble(newPriceStr);
+                item = new Item(item.getItemId(), item.getTitle(), item.getDescription(), newPrice, item.isForRent(), item.getSellerId());
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Invalid price format. Price not updated.");
+            }
+        }
+
+        System.out.print("Is the item for rent? (true/false, leave blank to keep current: " + item.isForRent() + "): ");
+        String newIsForRentStr = scanner.nextLine();
+        if (!newIsForRentStr.isEmpty()) {
+            try {
+                boolean newIsForRent = Boolean.parseBoolean(newIsForRentStr);
+                item = new Item(item.getItemId(), item.getTitle(), item.getDescription(), item.getPrice(), newIsForRent, item.getSellerId());
+            } catch (IllegalArgumentException e) {
+                System.out.println("❌ Invalid boolean format. Rent status not updated.");
+            }
+        }
+
+        itemManager.updateItem(item);
+    }
+
+    private static void deleteUserByAdmin(Scanner scanner, UserManager userManager) {
+        System.out.print("Enter User ID to delete: ");
+        int userIdToDelete = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+        userManager.deleteUser(userIdToDelete);
     }
 }
