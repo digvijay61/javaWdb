@@ -1,3 +1,7 @@
+//GROUP MEMBERS:
+//DIGVIJAYSINH VANSIYA
+//DHANRAJ SHITOLE
+//ARYANSINGH RAJPUT
 package quickmart;
 
 import quickmart.models.Seller;
