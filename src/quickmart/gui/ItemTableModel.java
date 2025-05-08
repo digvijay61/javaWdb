@@ -70,4 +70,8 @@ public class ItemTableModel extends AbstractTableModel {
             default: return String.class;
         }
     }
+
+    Object getRawValueAt(int modelRow, int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

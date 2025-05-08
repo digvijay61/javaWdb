@@ -134,7 +134,7 @@ public class RegisterPanel extends JPanel {
         }
     }
 
-    private void clearFields() {
+    void clearFields() {
         nameField.setText("");
         emailField.setText("");
         passwordField.setText("");

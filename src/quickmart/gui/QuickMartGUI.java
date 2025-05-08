@@ -2,7 +2,7 @@ package quickmart.gui;
 
 import quickmart.management.ItemManager;
 import quickmart.management.UserManager;
-import quickmart.utils.DBUtil; // Import DBUtil```
+import quickmart.utils.DBUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,38 +33,52 @@ public class QuickMartGUI extends JFrame {
     // Managers
     private final UserManager userManager;
     private final ItemManager itemManager;
-    // TransactionManager is used internally by BuyerPanel/Transaction, no direct GUI interaction needed usually
 
     public QuickMartGUI() {
         // Initialize Managers first
         userManager = new UserManager();
         itemManager = new ItemManager();
 
-        // Initialize DB (Optional here, could be done in main)
+        // Initialize DB Connection and Load Defaults
         initializeDatabase();
 
         setTitle("QuickMart Application");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(800, 600)); // Set a reasonable minimum size
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // Handle exit via listener
+        setMinimumSize(new Dimension(850, 650));
+        setPreferredSize(new Dimension(900, 700));
         setLocationRelativeTo(null); // Center the window
 
-        initComponents();
+        initComponents(); // Initialize GUI components AFTER managers and DB are ready
+
+        // Add window listener for closing confirmation
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                exitApplication();
+            }
+        });
+
+        pack(); // Adjust frame size to fit preferred sizes of components
     }
 
      private void initializeDatabase() {
+        System.out.println("Initializing Database Connection...");
         try {
-            // Ensure connection is established and tables/default items are ready
-            DBUtil.getConnection(); // Establishes connection, creates DB/Tables if needed
-            DBUtil.loadDefaultItems(); // Load default items if table is empty
+            DBUtil.getConnection();
+            System.out.println("DB Connection successful.");
+            DBUtil.loadDefaultItems();
+             System.out.println("Default items checked/loaded.");
         } catch (SQLException | IOException e) {
-             JOptionPane.showMessageDialog(this,
+             System.err.println("FATAL: Database Initialization Failed: " + e.getMessage());
+             JOptionPane.showMessageDialog(null,
                     "Database Initialization Failed: " + e.getMessage() +
-                    "\nPlease ensure MySQL server is running and configured correctly.",
-                    "Database Error", JOptionPane.ERROR_MESSAGE);
+                    "\nPlease ensure your MySQL server is running and the credentials\n" +
+                    "in src/quickmart/utils/DBUtil.java are correct.\n\nThe application will now exit.",
+                    "Database Connection Error", JOptionPane.ERROR_MESSAGE);
              e.printStackTrace();
-             // Consider exiting if DB is essential
              System.exit(1);
         }
+         System.out.println("Database Initialization Complete.");
     }
 
 
@@ -72,15 +86,15 @@ public class QuickMartGUI extends JFrame {
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
 
-        // Initialize Panels (pass managers and main frame reference)
+        System.out.println("Initializing GUI Panels...");
         mainPanel = new MainPanel(this);
         registerPanel = new RegisterPanel(this, userManager);
         loginPanel = new LoginPanel(this, userManager);
         buyerPanel = new BuyerPanel(this, itemManager);
         sellerPanel = new SellerPanel(this, itemManager);
-        adminPanel = new AdminPanel(this, itemManager, userManager); // Pass both managers
+        adminPanel = new AdminPanel(this, itemManager, userManager);
+        System.out.println("GUI Panels Initialized.");
 
-        // Add panels to the container
         mainContainer.add(mainPanel, MAIN_PANEL);
         mainContainer.add(registerPanel, REGISTER_PANEL);
         mainContainer.add(loginPanel, LOGIN_PANEL);
@@ -88,37 +102,45 @@ public class QuickMartGUI extends JFrame {
         mainContainer.add(sellerPanel, SELLER_PANEL);
         mainContainer.add(adminPanel, ADMIN_PANEL);
 
-        // Add the main container to the frame
-        add(mainContainer);
+        setContentPane(mainContainer);
 
-        // Show the initial panel
         cardLayout.show(mainContainer, MAIN_PANEL);
+        System.out.println("Initial Panel Set to Main Menu.");
     }
 
-    // Method to switch panels
     public void showPanel(String panelName) {
+        System.out.println("Switching to panel: " + panelName);
         cardLayout.show(mainContainer, panelName);
-        // Refresh data if necessary when showing certain panels
-        switch (panelName) {
+         switch (panelName) {
             case BUYER_PANEL:
-                buyerPanel.loadAvailableItems(); // Reload items when buyer panel is shown
-                buyerPanel.updateCartView(); // Ensure cart is up-to-date
+                if (buyerPanel != null) {
+                    buyerPanel.loadAvailableItems();
+                    buyerPanel.updateCartView();
+                }
                 break;
             case SELLER_PANEL:
-                // Seller panel reloads data based on login/viewMyItems action
-                if (sellerPanel.currentSeller == null) { // If logged out or just showing panel
-                    sellerPanel.loadItems(); // Show all items if not logged in
-                } else {
-                    sellerPanel.viewMyItems(); // Show seller's items if logged in
-                }  break;
-            case ADMIN_PANEL:
-                adminPanel.loadItems(); // Reload items for admin view
-                // TODO: Load users if user management table is implemented
+                if (sellerPanel != null) {
+                     if (sellerPanel.currentSeller == null) {
+                        sellerPanel.loadAllItems();
+                    } else {
+                        sellerPanel.viewMyItems();
+                    }
+                }
                 break;
-        }
+            case ADMIN_PANEL:
+                if (adminPanel != null) {
+                    adminPanel.onPanelShown();
+                }
+                break;
+            case LOGIN_PANEL:
+                 if(loginPanel != null) loginPanel.clearFields();
+                 break;
+            case REGISTER_PANEL:
+                 if(registerPanel != null) registerPanel.clearFields();
+                 break;
+         }
     }
 
-     // Accessor methods for panels if needed (e.g., to set current user)
     public BuyerPanel getBuyerPanel() {
         return buyerPanel;
     }
@@ -127,32 +149,20 @@ public class QuickMartGUI extends JFrame {
         return sellerPanel;
     }
 
-
-    // Method to exit the application
     public void exitApplication() {
          int confirmation = JOptionPane.showConfirmDialog(this,
                 "Are you sure you want to exit QuickMart?", "Confirm Exit",
-                JOptionPane.YES_NO_OPTION);
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
         if (confirmation == JOptionPane.YES_OPTION) {
-            // Close DB connection before exiting
+            System.out.println("Exiting application...");
             DBUtil.closeConnection();
+             System.out.println("DB connection closed.");
+            dispose();
             System.exit(0);
         }
     }
 
-    // Main method to launch the GUI
-    public static void main(String[] args) {
-        // Set Look and Feel (optional, for better appearance)
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-            System.err.println("Failed to set system LookAndFeel: " + e.getMessage());
-        }
+    // *** NO main METHOD HERE ***
 
-        // Run the GUI on the Event Dispatch Thread (EDT)
-        SwingUtilities.invokeLater(() -> {
-            QuickMartGUI gui = new QuickMartGUI();
-            gui.setVisible(true);
-        });
-    }
-}
+} // End of QuickMartGUI class

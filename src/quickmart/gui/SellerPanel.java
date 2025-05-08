@@ -348,4 +348,8 @@ public class SellerPanel extends JPanel {
             mainFrame.showPanel(QuickMartGUI.MAIN_PANEL);
         }
     }
+
+    void loadAllItems() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

@@ -7,7 +7,7 @@ package quickmart;
 import quickmart.gui.QuickMartGUI; // Import the main GUI frame class
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.UnsupportedLookAndFeelException; // Correct import
 
 /**
  * Main class to launch the QuickMart Swing GUI application.
@@ -19,7 +19,7 @@ public class Main {
      * Sets up the look and feel and launches the GUI on the Event Dispatch Thread.
      * @param args Command line arguments (not used).
      */
-    public static void main(String[] args) throws UnsupportedLookAndFeelException {
+    public static void main(String[] args) { // Removed unnecessary throws clause
         System.out.println("QuickMart Application Starting...");
 
         // Set Look and Feel (Optional, but recommended for better UI consistency)
@@ -58,13 +58,5 @@ public class Main {
         });
 
         System.out.println("Main thread finished (GUI launch delegated to EDT).");
-
-        // NO console logic (Scanner, userManager, itemManager, menus) should remain here.
-        // Database initialization (DBUtil.loadDefaultItems, DBUtil.getConnection)
-        // is now handled within the QuickMartGUI constructor to ensure it happens
-        // before the GUI components that might depend on it are fully initialized.
     }
-
-    // All previous static methods (registerUser, loginUser, adminMenu, etc.)
-    // MUST be removed from this file as their logic is now part of the GUI panels.
 }
